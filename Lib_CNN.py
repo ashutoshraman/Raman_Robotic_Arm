@@ -1,28 +1,3 @@
-
-'''
-This is a fast starting code for a simple Artificial Neural Network
-Author: Brain Tool Lab, Duke University
-
-Note: Please use Pytorch (Model Structure)
-1. simple multi-layer perceptons models (MLP)
-2. Convolutional Neural Network (CNN)
-3. U-net
-
-Reference:
-1. Pytorch official tutorials
-2. "ANN-traintest.ipynb" in the repository
-3. https://medium.com/biaslyai/pytorch-introduction-to-neural-network-feedforward-neural-network-model-e7231cff47cb
-4. https://www.machinecurve.com/index.php/2021/01/26/creating-a-multilayer-perceptron-with-pytorch-and-lightning/
-
-Choose the loss and activation function:
-1. https://towardsdatascience.com/deep-learning-which-loss-and-activation-functions-should-i-use-ac02f1c56aa8
-
-Notes:
-1. Connection betweeen numpy and torch array
-2. Train a simple fully connected MLP.
-
-'''
-
 import torch
 import torch.nn as nn
 
