@@ -77,9 +77,9 @@ X_train, y_train = np.array(X_train), np.array(y_train)
 X_val, y_val = np.array(X_val), np.array(y_val)
 X_test, y_test = np.array(X_test), np.array(y_test)
 
-train_dataset = Lib_ANN.DataAccess(torch.from_numpy(X_train).float(), torch.from_numpy(y_train).long())
-val_dataset = Lib_ANN.DataAccess(torch.from_numpy(X_val).float(), torch.from_numpy(y_val).long())
-test_dataset = Lib_ANN.DataAccess(torch.from_numpy(X_test).float(), torch.from_numpy(y_test).long())
+train_dataset = Lib_CNN.DataAccess(torch.from_numpy(X_train).float(), torch.from_numpy(y_train).long())
+val_dataset = Lib_CNN.DataAccess(torch.from_numpy(X_val).float(), torch.from_numpy(y_val).long())
+test_dataset = Lib_CNN.DataAccess(torch.from_numpy(X_test).float(), torch.from_numpy(y_test).long())
 
 
 
@@ -146,7 +146,7 @@ else:
     device = torch.device("cpu")
 
 
-model = Lib_ANN.ML_Models(X_array.shape[1]) # change in and out features size depending on data used and type of classsification
+model = Lib_CNN.Raman_CNN(X_array.shape[1]) # change in and out features size depending on data used and type of classsification
 model.to(device)
 criterion = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr = LEARNING_RATE)
