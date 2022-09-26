@@ -71,16 +71,16 @@ class ML_Models_Binary(torch.nn.Module):
 class Raman_CNN(torch.nn.Module):
     def __init__(self, numChannels, classes): #here numchannels is input dimension or wavelengths in spectra
         super(Raman_CNN, self).__init__()
-        self.conv1 = nn.Conv1d(in_channels=numChannels, out_channels=16, kernel_size= (12,1))
+        self.conv1 = nn.Conv1d(in_channels=numChannels, out_channels=16, kernel_size= 12)
         self.relu = nn.ReLU()
-        self.maxpool = nn.MaxPool1d(kernel_size=(2,1), stride=2)
+        self.maxpool = nn.MaxPool1d(kernel_size=2, stride=2)
 
-        self.conv2 = nn.Conv1d(in_channels=16, out_channels=32, kernel_size= (12,1))
-        self.conv3 = nn.Conv1d(in_channels=32, out_channels=64, kernel_size= (12,1))
-        self.conv4 = nn.Conv1d(in_channels=64, out_channels=128, kernel_size= (12,1))
+        self.conv2 = nn.Conv1d(in_channels=16, out_channels=32, kernel_size= 12)
+        self.conv3 = nn.Conv1d(in_channels=32, out_channels=64, kernel_size= 12)
+        self.conv4 = nn.Conv1d(in_channels=64, out_channels=128, kernel_size= 12)
 
         self.fc = nn.Linear(numChannels, 500) #this could be wavelengths also, not necessarily same as input to CNN
-        self.fc2 = nn.Linear(500, 2) #1 if binary cross entropy
+        self.fc2 = nn.Linear(500, classes) #1 if binary cross entropy
         self.dropout = nn.Dropout(p=.1)
     
     def forward(self, x):
