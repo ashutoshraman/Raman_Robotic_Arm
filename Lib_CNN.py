@@ -69,7 +69,7 @@ class ML_Models_Binary(torch.nn.Module):
         return output
 
 class Raman_CNN(torch.nn.Module):
-    def __init__(self, numChannels, classes): #here numchannels is input dimension or wavelengths in spectra
+    def __init__(self, numChannels, classes, inputdim): #here numchannels is input dimension or wavelengths in spectra
         super(Raman_CNN, self).__init__()
         self.conv1 = nn.Conv1d(in_channels=numChannels, out_channels=16, kernel_size= 12)
         self.relu = nn.ReLU()
@@ -79,7 +79,7 @@ class Raman_CNN(torch.nn.Module):
         self.conv3 = nn.Conv1d(in_channels=32, out_channels=64, kernel_size= 12)
         self.conv4 = nn.Conv1d(in_channels=64, out_channels=128, kernel_size= 12)
 
-        self.fc = nn.Linear(numChannels, 500) #this could be wavelengths also, not necessarily same as input to CNN
+        self.fc = nn.LazyLinear(500) #all wavelengths * numchannels? Lazy Linear infers in_features
         self.fc2 = nn.Linear(500, classes) #1 if binary cross entropy
         self.dropout = nn.Dropout(p=.1)
     
@@ -88,6 +88,7 @@ class Raman_CNN(torch.nn.Module):
         x = self.maxpool(self.relu(self.conv2(x)))
         x = self.maxpool(self.relu(self.conv3(x)))
         x = self.maxpool(self.relu(self.conv4(x)))
+        x = torch.flatten(x, 1)
         x = self.relu(self.dropout(self.fc(x)))
         out = self.fc2(x)
 
