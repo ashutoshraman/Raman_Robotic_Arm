@@ -24,53 +24,27 @@ for i in os.listdir(folder):
     new_spectra = pd.read_csv(folder+i, header=None, )
     plt.plot(new_spectra[0], new_spectra[1])
     plt.title(i)
-    plt.show()
+    # plt.show()
     if len(spectral_cube) == 0:
         spectral_cube.append(new_spectra)
     else:
         spectral_cube.append(new_spectra.iloc[:, 1])
-    spectral_frame = pd.concat(spectral_cube, axis=1, ignore_index=True)
+spectral_frame = pd.concat(spectral_cube, axis=1, ignore_index=True)
 
-print(spectral_frame)
 
-Y_array = np.array([0, 1, 1, 0])
-X_array = spectral_frame.iloc[:, 1:]
+spectral_copy = spectral_frame.iloc[:, 1:]
+spectral_copy2 = spectral_frame.iloc[:, 1:]
+spectral_frame = pd.concat([spectral_frame, spectral_copy, spectral_copy2, ], axis=1, ignore_index=True).to_numpy()
+print(spectral_frame.shape)
 
-# sys.exit() 
-# x1_array, y1_array = H5_Class().read_raster_contents('Mouse_study_day_1.hdf5', 'Data/tumorID-csv/81721-Mouse/healthy/', 0)
-# x2_array, y2_array = H5_Class().read_raster_contents('Mouse_study_day_1.hdf5', 'Data/tumorID-csv/81721-Mouse/tumor/', 1)
-# x3_array, y3_array = H5_Class().read_raster_contents('Mouse_study_day_2.hdf5', 'Data/tumorID-csv/083021-mouse/healthy/', 0)
-# x4_array, y4_array = H5_Class().read_raster_contents('Mouse_study_day_2.hdf5', 'Data/tumorID-csv/083021-mouse/tumor1/', 1)
-# x5_array, y5_array = H5_Class().read_raster_contents('Mouse_study_day_2.hdf5', 'Data/tumorID-csv/083021-mouse/tumor2/', 1) #could try shuffling within each class before train test split
 
-# X_array = np.concatenate((np.transpose(x1_array[:, 1:]), np.transpose(x2_array[:, 1:]), np.transpose(x3_array[:, 1:]), np.transpose(x4_array[:, 1:]), np.transpose(x5_array[:, 1:])), axis=0)
-# Y_array = np.concatenate((np.transpose(y1_array[:, 1:]), np.transpose(y2_array[:, 1:]), np.transpose(y3_array[:, 1:]), np.transpose(y4_array[:, 1:]), np.transpose(y5_array[:, 1:])), axis=0)
-# print(X_array.shape, Y_array.shape)
+Y_array = np.array([0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0])
+X_array = spectral_frame[:, 1:]
 
-# wavelength_500 = np.argmin(np.abs(x1_array[:, 0] - 500))
-
-# def data_cleaning(X_data, Y_data): #use only past 405 peak data, convolve to smooth, delete spectra w avg intensity <.02, normalize
-#     cutoff_405 = np.argmin(np.abs(x1_array[:, 0] - 445)) #this is already done above, outside this function
-#     wavelength_uppercut = np.argmin(np.abs(x1_array[:, 0] - 750))
-#     X_data = X_data[:, cutoff_405:wavelength_uppercut] # use only past 405 peak
-#     for i in range(X_data.shape[0]-1, -1, -1):
-#         X_data[i, :] = np.convolve(X_data[i, :], np.ones(10)/10, 'same') #convolve to smooth  
-#     indices = np.where(np.average(X_data, axis=1) >= .005) 
-#     X_data, Y_data = X_data[indices], Y_data[indices] #only use those with avg apectra >=.02
-#     X_data = X_data / X_data[:, (wavelength_500 - cutoff_405)].reshape(X_data.shape[0], 1) #normalize with 500nm wvlgth
-#     # wavelength_max = np.amax(X_data, axis=1)
-#     # X_data = X_data / wavelength_max.reshape(X_data.shape[0], 1) 
-
-    
-#     return X_data, Y_data
-
-# X_array, Y_array = data_cleaning(X_array, Y_array)
-# print('shape after cleaning')
-# print(X_array.shape, Y_array.shape)
 
 
 # Split into train+val and test, stratify ensures classes have equal representation in train, val, test, since they are disproportionate
-X_trainval, X_test, y_trainval, y_test = train_test_split(X_array.T, Y_array, test_size=0.5, stratify=Y_array.reshape(Y_array.shape[0]), shuffle=True, random_state=69)
+X_trainval, X_test, y_trainval, y_test = train_test_split(X_array.T, Y_array, test_size=0.25, stratify=Y_array.reshape(Y_array.shape[0]), shuffle=True, random_state=69)
 X_train, X_val, y_train, y_val = train_test_split(X_trainval, y_trainval, test_size=0.25, stratify=y_trainval, shuffle=True, random_state=21)
 # kfold = KFold(10, True, 1)
 
@@ -136,8 +110,8 @@ weighted_sampler = WeightedRandomSampler(
 )
 
 
-EPOCHS = 35 #100 overfits but 35 is about trough of validation loss
-BATCH_SIZE = 4
+EPOCHS = 35 
+BATCH_SIZE = 2
 LEARNING_RATE = 0.001
 NUM_FEATURES = X_array.shape[1]
 NUM_CLASSES = 2
@@ -154,7 +128,7 @@ else:
     device = torch.device("cpu")
 
 
-model = Lib_CNN.Raman_CNN(1, 2, X_array.shape[1]) # change in and out features size depending on data used and type of classsification
+model = Lib_CNN.Raman_CNN(1, 2, X_array.shape[0]) # change in and out features size depending on data used and type of classsification
 model.to(device)
 criterion = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr = LEARNING_RATE)

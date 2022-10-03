@@ -82,8 +82,11 @@ class Raman_CNN(torch.nn.Module):
         self.fc = nn.LazyLinear(500) #all wavelengths * numchannels? Lazy Linear infers in_features
         self.fc2 = nn.Linear(500, classes) #1 if binary cross entropy
         self.dropout = nn.Dropout(p=.1)
+        self.input_dim = inputdim
     
     def forward(self, x):
+        # print(x.shape)
+        x = x.view(x.shape[0], 1, self.input_dim) #do this to get it into shape of batch, channels, dimension of spectra
         x = self.maxpool(self.relu(self.conv1(x)))
         x = self.maxpool(self.relu(self.conv2(x)))
         x = self.maxpool(self.relu(self.conv3(x)))
