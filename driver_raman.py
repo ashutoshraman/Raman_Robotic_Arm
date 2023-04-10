@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import glob
-import h5py
+# import h5py
 import os
 import matplotlib.pyplot as plt
 import time
@@ -22,24 +22,34 @@ spectral_cube = []
 plt.figure()
 for i in os.listdir(folder):
     new_spectra = pd.read_csv(folder+i, header=None, )
-    plt.plot(new_spectra[0], new_spectra[1])
-    plt.title(i)
+    # if i == 'agarose_10x10ms_100mW  1.csv' or i == 'gnspeg_10x10ms_100mW  1.csv':
+    plt.plot(new_spectra[0], new_spectra[1], label= i)
     # plt.show()
     if len(spectral_cube) == 0:
         spectral_cube.append(new_spectra)
     else:
         spectral_cube.append(new_spectra.iloc[:, 1])
+plt.title('Representative Spectra')
+plt.xlabel('Wavenumber (1/nm)')
+plt.ylabel('Intensity')
+plt.legend()
+plt.show()
 spectral_frame = pd.concat(spectral_cube, axis=1, ignore_index=True)
 
 
 spectral_copy = spectral_frame.iloc[:, 1:]
 spectral_copy2 = spectral_frame.iloc[:, 1:]
-spectral_frame = pd.concat([spectral_frame, spectral_copy, spectral_copy2, ], axis=1, ignore_index=True).to_numpy()
+spectral_copy3 = spectral_frame.iloc[:, 1:]
+spectral_copy4 = spectral_frame.iloc[:, 1:]
+
+spectral_frame = pd.concat([spectral_frame, spectral_copy, spectral_copy2, spectral_copy3, spectral_copy4], axis=1, ignore_index=True).to_numpy()
 print(spectral_frame.shape)
 
 
-Y_array = np.array([0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0])
+Y_array = np.array([0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0])
+# Y_array = np.array([0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3])
 X_array = spectral_frame[:, 1:]
+print(X_array.shape)
 
 
 
@@ -54,6 +64,8 @@ scaler = MinMaxScaler()
 X_train = scaler.fit_transform(X_train)
 X_val = scaler.transform(X_val)
 X_test = scaler.transform(X_test)
+
+print(X_train.max(axis=0).size)
 
 X_train, y_train = np.array(X_train), np.array(y_train)
 X_val, y_val = np.array(X_val), np.array(y_val)
@@ -70,7 +82,8 @@ def get_class_distribution(obj):
     count_dict = {
         "class_1": 0,
         "class_2": 0,
-        # "class_3": 0,
+        "class_3": 0,
+        "class_4": 0,
     }
     
     for i in obj:
@@ -78,8 +91,10 @@ def get_class_distribution(obj):
             count_dict['class_1'] += 1
         elif i == 1: 
             count_dict['class_2'] += 1
-        # elif i == 2: 
-        #     count_dict['class_3'] += 1              
+        elif i == 2: 
+            count_dict['class_3'] += 1  
+        elif i == 3: 
+            count_dict['class_4'] += 1            
         else:
             print("Check classes.")
             
@@ -110,10 +125,10 @@ weighted_sampler = WeightedRandomSampler(
 )
 
 
-EPOCHS = 35 
+EPOCHS = 100
 BATCH_SIZE = 2
 LEARNING_RATE = 0.001
-NUM_FEATURES = X_array.shape[1]
+NUM_FEATURES = X_array.shape[0]
 NUM_CLASSES = 2
 
 
@@ -128,7 +143,7 @@ else:
     device = torch.device("cpu")
 
 
-model = Lib_CNN.Raman_CNN(1, 2, X_array.shape[0]) # change in and out features size depending on data used and type of classsification
+model = Lib_CNN.Raman_CNN(1, NUM_CLASSES, NUM_FEATURES) # change in and out features size depending on data used and type of classsification
 model.to(device)
 criterion = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr = LEARNING_RATE)
