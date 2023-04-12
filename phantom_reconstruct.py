@@ -190,3 +190,29 @@ def calculate_iou(gt_mask, pred_mask):
 iou = calculate_iou(image, tumor_map)
 
 print("IoU: ", iou)
+
+
+# new code to compare boundaires of masks through boundary analysis. Please Use !!!
+from skimage.segmentation import find_boundaries
+
+
+
+# Find the boundaries of the objects in both masks
+gt_boundaries = find_boundaries(image)
+pred_boundaries = find_boundaries(tumor_map)
+
+#plot these boundary maps
+plt.figure()
+plt.imshow(gt_boundaries)
+plt.show()
+
+plt.figure()
+plt.imshow(pred_boundaries)
+plt.show()
+
+# Compare the boundaries by computing the intersection over union (IoU)
+intersection = np.logical_and(gt_boundaries, pred_boundaries)
+union = np.logical_or(gt_boundaries, pred_boundaries)
+iou_score = np.sum(intersection) / np.sum(union)
+
+print('IoU score:', iou_score)
